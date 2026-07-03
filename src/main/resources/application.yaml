@@ -1,0 +1,38 @@
+spring:
+  application:
+    name: tool-calling
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/taskdb
+    username: admin
+    password: secret
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update      # auto-creates/updates tables from @Entity classes
+    show-sql: true           # prints generated SQL to console — helpful while debugging
+    properties:
+      hibernate:
+        format_sql: true
+    open-in-view: false
+
+  ai:
+    openai:
+      api-key: ${GROQ_API_KEY:}
+      base-url: ${GROQ_BASE_URL}
+      chat:
+        model: ${GROQ_MODEL}
+        max-tokens: ${GROQ_MAX_TOKENS}
+        temperature: ${GROQ_TEMPERATURE}
+
+logging:
+  level:
+    org.springframework.ai: DEBUG
+    com.nagarjuna: DEBUG
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, metrics
