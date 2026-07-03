@@ -1,0 +1,41 @@
+  services:
+    postgres:
+      image: postgres:16-alpine
+      container_name: task-manager-db
+      environment:
+        POSTGRES_DB: taskdb
+        POSTGRES_USER: admin
+        POSTGRES_PASSWORD: secret
+      ports:
+        - "5432:5432"
+      volumes:
+        - pgdata:/var/lib/postgresql/data
+      healthcheck:
+        test: ["CMD-SHELL", "pg_isready -U admin -d taskdb"]
+        interval: 5s
+        timeout: 5s
+        retries: 5
+
+    app:
+      build:
+        context: .
+        dockerfile: Dockerfile
+      container_name: task-manager-app
+      depends_on:
+        postgres:
+          condition: service_healthy
+      environment:
+        GROQ_API_KEY: ${GROQ_API_KEY}
+        GROQ_MAX_TOKENS: ${GROQ_MAX_TOKENS}
+        GROQ_TEMPERATURE: ${GROQ_TEMPERATURE}
+        GROQ_BASE_URL: ${GROQ_BASE_URL}
+        GROQ_MODEL: ${GROQ_MODEL}
+        SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/taskdb
+        SPRING_DATASOURCE_USERNAME: admin
+        SPRING_DATASOURCE_PASSWORD: secret
+        SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      ports:
+        - "8080:8080"
+
+  volumes:
+    pgdata:
